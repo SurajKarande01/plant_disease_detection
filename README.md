@@ -1,94 +1,168 @@
-## 🌿 Plant Disease Identification using Leaf Images
+# 🌿 Plant Disease Identification & Diagnosis Platform
 
-### 📋 Overview
+[![Python Version](https://img.shields.io/badge/Python-3.8%2B-blue.svg?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
+[![TensorFlow](https://img.shields.io/badge/TensorFlow-2.x-orange.svg?style=for-the-badge&logo=tensorflow&logoColor=white)](https://www.tensorflow.org/)
+[![Keras](https://img.shields.io/badge/Keras-2.x-red.svg?style=for-the-badge&logo=keras&logoColor=white)](https://keras.io/)
+[![Streamlit App](https://img.shields.io/badge/Streamlit-App-FF4B4B.svg?style=for-the-badge&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![OpenCV](https://img.shields.io/badge/OpenCV-Image%20Processing-green.svg?style=for-the-badge&logo=opencv&logoColor=white)](https://opencv.org/)
 
-This project implements a **Convolutional Neural Network (CNN)** using Keras and TensorFlow to classify plant leaf diseases. The primary goal is to provide a fast and accurate prediction system through an interactive web application built with **Streamlit**.
+An end-to-end Machine Learning web application powered by a custom **Convolutional Neural Network (CNN)** and **Streamlit** to instantly classify, identify, and diagnose crop leaf diseases. This project helps farmers, botanists, and agricultural researchers detect plant pathologies early from leaf images.
 
-The project consists of two main parts:
+---
 
-1.  **Model Training (`Plant_Disease_Detection.py`):** The script used to prepare the dataset, define the CNN architecture, and train the model.
-2.  **Web Application (`main_app.py`):** A Streamlit application that allows users to upload a leaf image and get an instant disease prediction.
+## 📌 Table of Contents
 
------
+1. [Key Features](#-key-features)
+2. [Supported crops & Diseases](#-supported-crops--diseases)
+3. [Model Architecture & Training](#-model-architecture--training)
+4. [Project Directory Structure](#-project-directory-structure)
+5. [Installation & Setup](#-installation--setup)
+6. [Usage Guide](#-usage-guide)
+7. [Future Enhancements](#-future-enhancements)
+8. [License](#-license)
 
-### 🚀 Getting Started
+---
 
-#### Prerequisites
+## 🚀 Key Features
 
-To run this project locally, you need Python and the following libraries. It is recommended to use a virtual environment.
+*   📷 **Instant Inference & Classification:** Upload plant leaf images (`.jpg`, `.jpeg`, `.png`) to identify diseases in milliseconds.
+*   🧠 **Deep Learning Classifier:** Custom Sequential CNN architecture optimized for crop classification.
+*   🌾 **Multi-Crop Support:** Detects diseases across **Corn (Maize)**, **Grape**, **Soybean**, and **Tomato**.
+*   🖥️ **Interactive Web Interface:** Modern, clean, and user-friendly web app built using Streamlit.
+*   🖼️ **Real-Time Visual Feedback:** Shows the original image resolution and resizes it live during processing.
 
+---
+
+## 🌾 Supported Crops & Diseases
+
+The model is trained to recognize **15 distinct classes** representing healthy states and specific diseases:
+
+| Crop | Disease / Health Status | Label Class in Dataset |
+| :--- | :--- | :--- |
+| **🌽 Corn (Maize)** | Gray Leaf Spot (*Cercospora*) | `Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot` |
+| **🌽 Corn (Maize)** | Common Rust | `Corn_(maize)___Common_rust_` |
+| **🌽 Corn (Maize)** | Northern Leaf Blight | `Corn_(maize)___Northern_Leaf_Blight` |
+| **🌽 Corn (Maize)** | **Healthy** | `Corn_(maize)___healthy` |
+| **🍇 Grape** | Black Rot | `Grape___Black_rot` |
+| **🍇 Grape** | Black Measles (*Esca*) | `Grape___Esca_(Black_Measles)` |
+| **🍇 Grape** | Leaf Blight (*Isariopsis*) | `Grape___Leaf_blight_(Isariopsis_Leaf_Spot)` |
+| **🍇 Grape** | **Healthy** | `Grape___healthy` |
+| **🌱 Soybean** | Septoria Brown Spot | `Soyabean_Septoria_Brown_Spot` |
+| **🌱 Soybean** | Vein Necrosis | `Soyabean_Vein Necrosis` |
+| **🌱 Soybean** | **Healthy** | `Soybean___healthy` |
+| **🍅 Tomato** | Bacterial Spot | `Tomato___Bacterial_spot` |
+| **🍅 Tomato** | Early Blight | `Tomato___Early_blight` |
+| **🍅 Tomato** | Late Blight | `Tomato___Late_blight` |
+| **🍅 Tomato** | **Healthy** | `Tomato___healthy` |
+
+---
+
+## 🧠 Model Architecture & Training
+
+The core model is a sequential **Convolutional Neural Network (CNN)** built with Keras & TensorFlow.
+
+### CNN Layer Breakdown
+
+| Layer No. | Layer Type | Parameters / Filter Size | Output Shape | Activation | Details |
+| :---: | :--- | :--- | :---: | :---: | :--- |
+| **-** | **Input** | RGB Leaf Image | `(128, 128, 3)` | - | Normalized to range `[0.0, 1.0]` |
+| **1** | **Conv2D** | 32 filters, `3x3` kernel | `(128, 128, 32)` | ReLU | Identifies low-level spatial features |
+| **2** | **MaxPooling2D** | Pool size `3x3` | `(42, 42, 32)` | - | Downsamples spatial dimensions |
+| **3** | **Conv2D** | 16 filters, `3x3` kernel | `(42, 42, 16)` | ReLU | Extracts higher-level features |
+| **4** | **MaxPooling2D** | Pool size `2x2` | `(21, 21, 16)` | - | Downsamples features |
+| **5** | **Flatten** | - | `(7056)` | - | Flattens 2D feature maps into a 1D vector |
+| **6** | **Dense** | 8 Neurons | `(8)` | ReLU | Fully connected bottleneck layer |
+| **7** | **Dense (Output)**| 15 Neurons | `(15)` | Softmax | Outputs probability distributions for 15 classes |
+
+### Training Hyperparameters
+*   **Target Image Dimensions:** `128 x 128` pixels (RGB)
+*   **Loss Function:** `categorical_crossentropy` (Multi-class setup)
+*   **Optimizer:** `Adam` with a customized learning rate of `0.0001`
+*   **Training Specs:** `50 Epochs` | `Batch Size = 128`
+*   **Dataset Split:** 80% Train (with a 20% validation split on training data) and 20% Test.
+
+---
+
+## 📂 Project Directory Structure
+
+```text
+plant_disease_detection/
+├── Model/
+│   └── plant_disease_model.h5      # Pre-trained CNN model file
+├── Test Images/                    # Folder containing leaf sample images for testing
+│   └── ...
+├── Plant_Disease_Detection.py      # Python script for model training and evaluation
+├── main_app.py                    # Streamlit web application code
+└── README.md                       # Project Documentation
+```
+
+---
+
+## 💻 Installation & Setup
+
+### Prerequisites
+Make sure you have **Python 3.8+** installed. We highly recommend using a virtual environment to manage dependencies.
+
+### 1. Clone the Repository
 ```bash
-# Example: Creating and activating a virtual environment
+git clone https://github.com/SurajKarande01/plant_disease_detection.git
+cd plant_disease_detection
+```
+
+### 2. Set Up a Virtual Environment (Recommended)
+**On Windows:**
+```powershell
 python -m venv venv
-source venv/bin/activate 
+.\venv\Scripts\activate
 ```
-
-#### Installation
-
-Install the required packages using pip:
-
+**On macOS/Linux:**
 ```bash
-pip install numpy streamlit opencv-python tensorflow keras matplotlib scikit-learn pandas
+python3 -m venv venv
+source venv/bin/activate
 ```
 
-#### Running the Application
+### 3. Install Dependencies
+Install all the required Python libraries using pip:
+```bash
+pip install numpy streamlit opencv-python tensorflow keras matplotlib scikit-learn pandas pillow
+```
 
-To start the interactive web interface, navigate to the project's root directory in your terminal and run:
+---
 
+## 🖥️ Usage Guide
+
+### Running the Web Application
+To run the Streamlit user interface locally, execute the following command:
 ```bash
 streamlit run main_app.py
 ```
+This will spin up a local server. A browser window will automatically launch at `http://localhost:8501`.
 
-This command will open the application in your web browser, allowing you to upload images for prediction.
+1. **Upload Leaf Image:** Drag & drop or upload any image file from the `Test Images` folder or your own leaf collection.
+2. **Predict:** Click the **Predict Disease** button.
+3. **View Results:** The model will display the uploaded image and output the identified class label (e.g., *Tomato with Late blight leaf*).
 
------
+### Training the Model
+If you want to re-train the model or modify the architecture:
+1. Ensure your plant dataset is structured in a `Dataset` folder containing subdirectories for each of the 15 classes.
+2. Update the `dataset_path` variable on line 24 of `Plant_Disease_Detection.py`.
+3. Run the script:
+   ```bash
+   python Plant_Disease_Detection.py
+   ```
+4. This script will train the CNN, plot accuracy/loss metrics, and save the updated weights as `plant_disease_model.h5`.
 
-### 🧠 Model Training Details
+---
 
-The model was trained using the `Plant_Disease_Detection.py` script.
+## 🛠️ Future Enhancements
 
-#### Architecture
+*   [ ] **Incorporate Transfer Learning:** Integrate pre-trained state-of-the-art models like MobileNetV3 or ResNet50 for higher accuracy.
+*   [ ] **Add Treatment Guidelines:** Display organic & chemical treatment options, pesticide guidelines, or preventative measures alongside classification results.
+*   [ ] **Weather Integration:** Provide localized agricultural weather alerts and disease risk indexes.
+*   [ ] **Mobile Optimization:** Adapt the layout for smoother access via mobile devices in fields.
 
-The model uses a sequential **Convolutional Neural Network (CNN)** architecture:
+---
 
-| Layer Type | Parameters | Output Shape | Notes |
-| :--- | :--- | :--- | :--- |
-| **Conv2D** | 32 filters, (3, 3) kernel | (128, 128, 32) | Input shape is fixed at (128, 128, 3). Uses `relu`. |
-| **MaxPooling2D**| (3, 3) pool size | | Reduces dimensionality. |
-| **Conv2D** | 16 filters, (3, 3) kernel | | Uses `relu`. |
-| **MaxPooling2D**| (2, 2) pool size | | Further reduces dimensionality. |
-| **Flatten** | - | | Prepares data for Dense layers. |
-| **Dense** | 8 units | | Uses `relu`. |
-| **Dense** | 15 units | | **Output layer.** Uses `softmax` for 15 classes. |
+## 📄 License
 
-#### Configuration
-
-  * **Input Image Size:** 128x128 pixels (3 color channels).
-  * **Optimizer:** Adam with a learning rate of `0.0001`.
-  * **Loss Function:** `categorical_crossentropy`.
-  * **Epochs:** 50
-  * **Batch Size:** 128
-
------
-
-### 🖼️ Supported Classes
-
-The model is trained to identify 15 distinct classes across Corn (Maize), Grape, Soybean, and Tomato plants.
-
-| Plant | Disease/Status |
-| :--- | :--- |
-| **Corn (Maize)** | Cercospora leaf spot Gray leaf spot |
-| **Corn (Maize)** | Common rust |
-| **Corn (Maize)** | healthy |
-| **Corn (Maize)** | Northern Leaf Blight |
-| **Grape** | Black rot |
-| **Grape** | Esca (Black Measles) |
-| **Grape** | healthy |
-| **Grape** | Leaf blight (Isariopsis Leaf Spot) |
-| **Soybean** | Septoria Brown Spot |
-| **Soybean** | Vein Necrosis |
-| **Soybean** | healthy |
-| **Tomato** | Bacterial spot |
-| **Tomato** | Early blight |
-| **Tomato** | healthy |
-| **Tomato** | Late blight |
+This project is licensed under the MIT License.
